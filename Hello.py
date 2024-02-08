@@ -21,8 +21,8 @@ def generate_book_section(previous_sections, prompt, section_title):
     messages.append({"role": "user", "content": prompt})
     
     # Call the OpenAI API to generate the content for the current section
-    response = client.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo-16k",
         messages=messages,
         max_tokens=4096,
         temperature=0.7
