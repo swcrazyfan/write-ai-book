@@ -52,7 +52,7 @@ def generate_book_section(previous_sections, prompt, section_title, detailed_out
     response = client.chat.completions.create(
         model="gpt-3.5-turbo-16k",
         messages=messages,
-        max_tokens=16000,
+        max_tokens=12000,
         temperature=0.7
     )
     
