@@ -12,12 +12,13 @@ def generate_initial_outline(book_concept):
         model="gpt-3.5-turbo-16k",
         messages=[
             {"role": "system", "content": "You are a helpful assistant capable of generating detailed book outlines."},
-            {"role": "user", "content": f"Create an outline for a book with the concept: {book_concept}. Include an introduction and titles/summaries for a max of 8 chapters including the introduction."}
+            {"role": "user", "content": f"Create an outline for a book with the concept: {book_concept}. Include an introduction and titles/summaries for up to 8 chapters."}
         ],
-        max_tokens=4096,
+        max_tokens=1024,
         temperature=0.7
     )
-    outline = response.choices[0].message['content']
+    # Corrected way to access the content
+    outline = response.choices[0].message.content
     return outline
 
 def expand_outline(outline):
@@ -31,7 +32,8 @@ def expand_outline(outline):
         max_tokens=2048,
         temperature=0.7
     )
-    detailed_outline = response.choices[0].message['content']
+    # Corrected way to access the content
+    detailed_outline = response.choices[0].message.content
     return detailed_outline
 
 def generate_book_section(previous_sections, prompt, section_title, detailed_outline):
