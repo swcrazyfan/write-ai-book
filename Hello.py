@@ -29,7 +29,7 @@ def generate_book_section(previous_sections, prompt, section_title):
     )
     
     # Extract the generated content from the response
-    content = response.choices[0].message['content']
+    content = response['choices'][0]['message']['content']
     return {"title": section_title, "prompt": prompt, "content": content}
 
 def create_epub_book(title, author, sections):
