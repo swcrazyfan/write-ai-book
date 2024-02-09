@@ -1,89 +1,34 @@
-import os
 import streamlit as st
-from datetime import datetime
-from ebooklib import epub
+# Assuming a hypothetical updated OpenAI SDK or for illustrative purposes
 from openai import OpenAI
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Initialize the OpenAI client with your API key
+client = OpenAI(api_key='your_openai_api_key')
 
-def generate_initial_outline(book_concept):
-    print("Generating initial book outline...")
+def generate_book_outline(book_idea):
+    # Detailed prompt asking the AI to create a book outline
+    prompt = f"Create a detailed outline for a book based on the following idea or theme: {book_idea}"
     response = client.chat.completions.create(
-        model="gpt-3.5-turbo-16k",
+        model="gpt-4",
         messages=[
-            {"role": "system", "content": "You are a helpful assistant capable of generating detailed book outlines."},
-            {"role": "user", "content": f"Create an outline for a book with the concept: {book_concept}. Include an introduction and titles/summaries for up to 8 chapters."}
-        ],
-        max_tokens=1024,
-        temperature=0.7
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": prompt}
+        ]
     )
-    # Corrected way to access the content
-    outline = response.choices[0].message.content
-    return outline
+    # Extracting the generated outline from the response
+    # Adjust this line based on the actual structure of the response object
+    return response['choices'][0]['message']['content']
 
-def expand_outline(outline):
-    print("Expanding book outline...")
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo-16k",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant capable of expanding book outlines into detailed outlines."},
-            {"role": "user", "content": f"Take the following outline and expand it with more details:\n\n{outline}"}
-        ],
-        max_tokens=2048,
-        temperature=0.7
-    )
-    # Corrected way to access the content
-    detailed_outline = response.choices[0].message.content
-    return detailed_outline
+st.title('Book Outline Generator')
 
-def generate_book_section(previous_sections, prompt, section_title, detailed_outline):
-    print(f"Generating section: {section_title}")  # Logging
-    messages = [
-        {"role": "system", "content": "You are a helpful assistant capable of generating detailed book content."},
-        {"role": "user", "content": detailed_outline}
-    ]
-    
-    for section in previous_sections:
-        messages.append({"role": "user", "content": section["prompt"]})
-        messages.append({"role": "assistant", "content": section["content"]})
-    
-    messages.append({"role": "user", "content": prompt})
-    
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo-16k",
-        messages=messages,
-        max_tokens=12000,
-        temperature=0.7
-    )
-    
-    content = response.choices[0].message['content']
-    return {"title": section_title, "prompt": prompt, "content": content}
+# User input for the book idea or theme
+book_idea = st.text_area("Enter your book idea or theme:", height=150)
 
-# The `create_epub_book` function remains the same as in the previous example.
-
-# Streamlit UI for user inputs
-st.title("AI-driven EPUB Book Generator")
-book_concept = st.text_area("Book Concept:")
-book_title = st.text_input("Book Title:")
-author_name = st.text_input("Author Name:")
-
-if st.button("Generate Book"):
-    sections = []
-    
-    # Generate the initial outline based on the book concept
-    initial_outline = generate_initial_outline(book_concept)
-    
-    # Expand the initial outline into a detailed outline
-    detailed_outline = expand_outline(initial_outline)
-    
-    # Use the detailed outline to generate the introduction and chapters
-    intro_prompt = "Write an introduction based on the detailed outline above."
-    sections.append(generate_book_section([], intro_prompt, "Introduction", detailed_outline))
-    
-    for chapter_num in range(1, 9):  # Generate chapters based on the detailed outline
-        chapter_title = f"Chapter {chapter_num}"
-        chapter_prompt = f"Continue the story based on the detailed outline. Generate {chapter_title}."
-        sections.append(generate_book_section(sections, chapter_prompt, chapter_title, detailed_outline))
-    
-    epub_file_name = create_epub_book(book_title, author_name, sections)
-    st.success(f"Book generated successfully: {epub_file_name}")
+if st.button('Generate Outline'):
+    if book_idea:
+        with st.spinner('Generating outline...'):
+            outline = generate_book_outline(book_idea)
+            st.subheader('Generated Outline:')
+            st.write(outline)
+    else:
+        st.error('Please enter a book idea or theme to generate an outline.')
